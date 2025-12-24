@@ -53,6 +53,12 @@ spec:
               value: "true"
             - name: GRPC_EXPERIMENTAL_XDS_ENABLE_OVERRIDE_HOST
               value: "true"
+            % if env_vars:
+            % for name, value in env_vars.items():
+            - name: ${name}
+              value: "${value}"
+            % endfor
+            % endif
           volumeMounts:
             - mountPath: /tmp/grpc-xds/
               name: grpc-td-conf

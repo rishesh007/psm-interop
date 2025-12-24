@@ -16,7 +16,7 @@ Run xDS Test Client on Kubernetes.
 """
 import dataclasses
 import logging
-from typing import Optional
+from typing import Dict, Optional
 
 from framework.infrastructure import gcp
 from framework.infrastructure import k8s
@@ -33,6 +33,7 @@ class ClientDeploymentArgs:
     csm_canonical_service_name: str = ""
     enable_dualstack: bool = False
     is_trusted_xds_server_experimental: bool = False
+    env_vars: Optional[Dict[str, str]] = None
 
     def as_dict(self):
         return dataclasses.asdict(self)

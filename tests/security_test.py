@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import dataclasses
 import logging
 
 from absl import flags
@@ -28,9 +29,22 @@ _XdsTestServer = xds_k8s_testcase.XdsTestServer
 _XdsTestClient = xds_k8s_testcase.XdsTestClient
 _SecurityMode = xds_k8s_testcase.SecurityXdsKubernetesTestCase.SecurityMode
 _Lang = skips.Lang
+_ClientDeploymentArgs = xds_k8s_testcase.ClientDeploymentArgs
 
 
 class SecurityTest(xds_k8s_testcase.SecurityXdsKubernetesTestCase):
+    def initKubernetesClientRunner(self, **kwargs):
+        deployment_args = kwargs.get("deployment_args")
+        if deployment_args is None:
+            deployment_args = _ClientDeploymentArgs()
+
+        env_vars = deployment_args.env_vars.copy() if deployment_args.env_vars else {}
+        env_vars["GRPC_EXPERIMENTAL_XDS_FEDERATION"] = "false"
+
+        deployment_args = dataclasses.replace(deployment_args, env_vars=env_vars)
+        kwargs["deployment_args"] = deployment_args
+        return super().initKubernetesClientRunner(**kwargs)
+
     @staticmethod
     def is_supported(config: skips.TestConfig) -> bool:
         if config.client_lang in (
